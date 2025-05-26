@@ -1,0 +1,725 @@
+// ==UserScript==
+// @name         Dr Ahmed Khaled 👑 | سكريبت د.أحمد خالد
+// @namespace    https://www.facebook.com/Dr.Ahmed.FamilyFarm
+// @version      1.4
+// @description  واجهة متطورة لفتح الكروت، محطة التفكيك، فتح الروابط وارسال روابط المهمات  👑
+// @author       Dr Ahmed Khaled 👑
+// @match        *.centurygames.com/*
+// @require https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
+// @grant        unsafeWindow
+// @updateURL    https://raw.githubusercontent.com/ak2132003/DrKLDscript/main/DrKLDscript.user.js
+// @downloadURL  https://raw.githubusercontent.com/ak2132003/DrKLDscript/main/DrKLDscript.user.js
+// @run-at       document-end
+// ==/UserScript==
+
+(function () {
+    'use strict';
+(function () {
+    'use strict';
+
+    // التحقق من وجود تحديث جديد
+    const currentVersion = '1.4';
+    fetch('https://github.com/ak2132003/allinone/raw/refs/heads/main/allscript.user.js')
+      .then(response => response.text())
+      .then(script => {
+        const remoteVersion = script.match(/@version\s+([\d.]+)/)[1];
+        if (remoteVersion !== currentVersion) {
+          alert(`يوجد تحديث جديد للسكربت! الإصدار ${remoteVersion} متاح.\nيرجى التحديث للحصول على أحدث الميزات.`);
+        }
+      })
+      .catch(err => console.error('خطأ أثناء التحقق من التحديث:', err));
+})();
+    const drName = '';
+
+    // تحميل الخط
+    const fontLink = document.createElement('link');
+    fontLink.href = 'https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap';
+    fontLink.rel = 'stylesheet';
+    document.head.appendChild(fontLink);
+
+    // ستايل عام
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
+
+.dr-panel {
+    font-family: 'Cairo', sans-serif;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.8), rgba(253, 224, 71, 0.6));
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    border-radius: 16px;
+    padding: 25px;
+    min-width: 320px;
+    max-width: 600px;
+    width: auto;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    z-index: 99999;
+    box-sizing: border-box;
+}
+.dr-panel h3 {
+    margin-bottom: 15px;
+    font-size: 22px;
+    color: #fff;
+    text-shadow: 0 0 3px #000;
+}
+.dr-panel input, .dr-panel select, .dr-panel textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+}
+.dr-panel button {
+    background: linear-gradient(135deg, #4CAF50, #388E3C);
+    color: black;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+.dr-panel button:hover {
+    transform: scale(1.05);
+}
+.dr-main-btn {
+    position: fixed;
+    bottom: 120px;
+    right: 25px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: url('https://drahmedkhaled.neocities.org/%E2%80%94Pngtree%E2%80%94golden%20crown%20vector%20design_5415535-Photoroom.png') no-repeat center;
+    background-size: contain;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'Cairo', sans-serif;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+}
+.dr-main-btn:hover {
+    transform: scale(1.1);
+}
+.dr-menu {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    flex-direction: column;
+    background: url('https://drahmedkhaled.neocities.org/Background%2011.png') no-repeat center;
+    background-size: cover;
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+.dr-menu button {
+    background: none;
+    border: none;
+    padding: 12px 18px;
+    font-size: 18px;
+    color: black;
+    text-shadow: 0 0 2px #000;
+    font-family: 'Cairo', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.dr-menu button:hover {
+    background: rgba(255,255,255,0.1);
+}
+.dr-submenu {
+    display: none;
+    flex-direction: row;
+    background: rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    max-height: 0;
+    opacity: 0;
+}
+.dr-submenu.open {
+    display: flex;
+    max-height: 500px;
+    opacity: 1;
+}
+.dr-submenu button {
+    padding-left: 30px;
+}
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    z-index: 100;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -45%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+}
+`;
+document.head.appendChild(style);
+
+// تعريف المتغيرات
+// إنشاء الزر الرئيسي
+const mainBtn = document.createElement('div');
+mainBtn.className = 'dr-main-btn';
+mainBtn.innerHTML = `<span>${drName}<br></span>`;
+document.body.appendChild(mainBtn);
+
+// إنشاء القائمة الرئيسية
+const menu = document.createElement('div');
+menu.className = 'dr-menu';
+
+// زر أدوات الألبوم + قائمة فرعية
+const albumBtn = document.createElement('button');
+albumBtn.textContent = '📂 أدوات الألبوم';
+
+const subMenu = document.createElement('div');
+subMenu.className = 'dr-submenu';
+// زر مهمة بلينكو
+
+// زر عمليات المزرعة
+const farmBtn = document.createElement('button');
+farmBtn.textContent = '🌾 فتح المراحل ';
+farmBtn.onclick = () => showPanel('FarmAdventure');
+menu.appendChild(farmBtn);
+['cards', 'station', 'links', 'juicer', 'PurpleBird', 'Cream' ].forEach(id => {
+    const btn = document.createElement('button');
+    btn.textContent = {
+        cards: '🎴 فتح الكروت',
+        station: '🏗️ محطة التفكيك',
+        links: '🔗 فتح الروابط',
+        juicer: '🥤 آلة العصير',
+        PurpleBird: '🦜 طائر أرجواني',
+        Cream :'🍦 اله الكريمة الطازجة'
+    }[id];
+    btn.onclick = () => showPanel(id);
+    subMenu.appendChild(btn);
+});
+
+// تحكم في إظهار القائمة الفرعية بالانيميشن
+albumBtn.onclick = () => {
+    if (subMenu.classList.contains('open')) {
+        subMenu.classList.remove('open');
+    } else {
+        subMenu.classList.add('open');
+    }
+};
+
+// إضافة الزر والقائمة للقائمة الرئيسية
+menu.appendChild(albumBtn);
+menu.appendChild(subMenu);
+
+// زر مشاركة المهمات
+const tokenBtn = document.createElement('button');
+tokenBtn.textContent = '🎯 مشاركة الروابط (المهمات)';
+tokenBtn.onclick = () => showPanel('token');
+menu.appendChild(tokenBtn);
+
+// إضافة القائمة للصفحة
+document.body.appendChild(menu);
+
+// التحكم بفتح وإغلاق القائمة
+mainBtn.onclick = () => {
+    menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
+};
+
+// إنشاء كل النوافذ
+const panels = {
+    cards: createCardPanel(),
+    station: createStationPanel(),
+    links: createLinkPanel(),
+    token: createTokenPanel(),
+    juicer: createJuicerPanel(),
+    PurpleBird: createPurpleBirdPanel(),
+    Cream :createCreamPanel(),
+ FarmAdventure: createFarmPanel()
+};
+
+// دالة عرض النافذة المطلوبة
+function createFarmPanel() {
+    const div = document.createElement('div');
+    div.className = 'dr-panel';
+    div.innerHTML = `
+        <h3>🌾 فتح جميع المراحل</h3>
+        <div style="color:white;margin-bottom:15px;">
+            تنفيذ جميع عمليات المزرعة تلقائياً
+        </div>
+        <button id="runFarm" style="background:linear-gradient(135deg,#28a745,#218838);">
+            🚀 بدء التنفيذ
+        </button>
+        <div id="farmStatus" style="color:white;margin-top:10px;"></div>
+        <div class="close-btn" onclick="this.parentElement.style.display='none'">✖️</div>
+        <div style="text-align:center;color:white;font-size:14px;margin-top:10px;">👑 بواسطة د.أحمد خالد</div>
+    `;
+
+    // العناصر الثابتة
+    const fixedData = {
+        method: "story_start",
+        data_hash: "e2c7d5894ac548ad6d3efc6780f3e3ac",
+        cur_sceneid: 0,
+        base_story_type: "firecappedtitadventure"
+    };
+
+    // النهايات المتغيرة
+    const variations = ['a1','a2','a3','b1','b2','b3','c1','c2','c3','d1','d2','d3','e1','e2','e3','f1','f2','f3'];
+
+    // تنفيذ العمليات
+    div.querySelector('#runFarm').onclick = async () => {
+        const statusEl = div.querySelector('#farmStatus');
+        statusEl.textContent = '⏳ جاري فتح جميع المراحل...';
+
+        try {
+            for (let i = 0; i < variations.length; i++) {
+                const storyId = 1012773 + (i * 4);
+                const requestData = {
+                    data_hash: fixedData.data_hash,
+                    cur_sceneid: fixedData.cur_sceneid,
+                    story_type: fixedData.base_story_type + variations[i],
+                    story_id: storyId
+                };
+
+                await unsafeWindow.NetUtils.request('story_start', requestData);
+                await new Promise(resolve => setTimeout(resolve, 0)); // تأخير بين الطلبات
+            }
+            statusEl.textContent = '✅ تم تنفيذ جميع العمليات بنجاح!';
+        } catch (error) {
+            statusEl.textContent = '❌ حدث خطأ أثناء التنفيذ';
+            console.error('خطأ في عمليات المزرعة:', error);
+        }
+    };
+
+    document.body.appendChild(div);
+    return div;
+}
+
+function showPanel(id) {
+    Object.values(panels).forEach(panel => panel.style.display = 'none');
+    panels[id].style.display = 'flex';
+    menu.style.display = 'none';
+}
+
+    function createCardPanel() {
+        const types = { 'أخضر': 0x3ACFE, 'أصفر': 0x3ACFF, 'فاخر': 0x3AD00, 'حصري': 0x3AD01, 'مؤقت': 0x3AD02 };
+        const div = document.createElement('div');
+        div.className = 'dr-panel';
+        div.innerHTML = `
+            <h3>فتح الكروت</h3>
+            <select id="cardType">${Object.entries(types).map(([k, v]) => `<option value="${v}">${k}</option>`)}</select>
+            <input type="number" id="cardQty" placeholder="عدد الكروت">
+            <button id="runCard">🚀 تنفيذ</button>
+            <div id="cardMsg" style="color:white;margin-top:10px;"></div>
+<div class="close-btn" onclick="this.parentElement.style.display='none'">✖️</div>
+        `;
+        div.querySelector('#runCard').onclick = async () => {
+            const id = +div.querySelector('#cardType').value;
+            const qty = +div.querySelector('#cardQty').value;
+            if (!id || !qty) return alert("❌ تحقق من المدخلات");
+            div.querySelector('#cardMsg').textContent = '⏳ جاري التنفيذ...';
+            await unsafeWindow.NetUtils.request('Activity/AlbumEvent', {
+                action: 'useItem', itemId: id, qty: qty.toString(), needResponse: 'Activity/AlbumEvent1'
+            });
+            div.querySelector('#cardMsg').textContent = '✅ تم التنفيذ!';
+        };
+        document.body.appendChild(div);
+        return div;
+    }
+
+function createStationPanel() {
+    const div = document.createElement('div');
+    div.className = 'dr-panel';
+    div.innerHTML = `
+        <h3>محطة التفكيك</h3>
+        <div style="color:white;margin-bottom:10px;">📌 شروط التشغيل:</div>
+        <ul style="color:white; font-size: 16px">
+            <li>١. 🙌 لا تنسوا الدعاء لي بالتوفيق والسداد، وهذا أهم شرط لتشغيل السكربت 😄</li>
+            <li>٢. 🧹 تفريغ ٤ تربة من المنطقة 0,0</li>
+            <li>٣. 🏗️ لا يوجد لديك محطة تفكيك بالأساس</li>
+            <li>٤. 🎁 توافر المواد (حبل التفكيك في الهدايا) – لكل محطة واحدة تحتاج إلى (٥) حبل تفكيك</li>
+        </ul>
+        <input type="number" id="coins" placeholder="💰 عدد العملات المطلوبة">
+        <span>أو</span>
+        <input type="number" id="repeats" placeholder="🔁 التكرار">
+        <button id="runStation">🚀 تنفيذ</button>
+        <div id="stationMsg" style="color:white;margin-top:10px;"></div>
+        <div class="close-btn" onclick="this.parentElement.style.display='none'">✖️</div>
+        <div style="text-align:center;color:white;font-size:14px;margin-top:10px;">👑 بواسطة د.أحمد خالد</div>
+    `;
+
+    div.querySelector('#runStation').onclick = async () => {
+        const coins = +div.querySelector('#coins').value;
+        const repeats = +div.querySelector('#repeats').value;
+        const times = repeats || Math.ceil(coins / 8);
+        if (!coins && !repeats) return alert("⚠️ يجب تحديد عدد العملات أو التكرار!");
+
+        let unique_id = 1000;
+        div.querySelector('#stationMsg').textContent = '⏳ جاري التنفيذ...';
+
+        // إرسال كل العمليات في وقت واحد دون انتظار
+        const promises = [];
+        for (let i = 1; i <= times; i++) {
+            // عمليات إضافة العنصر، استخدام الهدايا (5 مرات) وحذف العنصر كلها في نفس اللحظة
+            const addObjectPromise = unsafeWindow.NetUtils.request('add_object.save_data', {
+                unique_id, id: 0x33b50, x: 0, y: 0, flip: 0, is_storage: false, is_gift: false, is_circle: false, daily_limit: false
+            });
+
+            const useGiftPromises = [];
+            for (let j = 1; j <= 5; j++) {
+                useGiftPromises.push(unsafeWindow.NetUtils.request('use_gift.save_data', { id: 0x33b51, target_id: 0x33b50, target_x: 0, target_y: 0 }));
+            }
+
+            const removeObjectPromise = unsafeWindow.NetUtils.request('remove_object.save_data', { id: 0x33b50, x: 0, y: 0, flip: 0 });
+
+            // مجموعة العمليات في Promise.all لتنفيذها في نفس اللحظة
+            promises.push(
+                Promise.all([
+                    addObjectPromise,
+                    ...useGiftPromises,
+                    removeObjectPromise
+                ])
+            );
+
+            unique_id++;
+        }
+
+        // تنفيذ جميع العمليات المتوازية
+        Promise.all(promises).then(() => {
+            div.querySelector('#stationMsg').textContent = '✅ تم التنفيذ!';
+        }).catch(err => {
+            div.querySelector('#stationMsg').textContent = '❌ حدث خطأ أثناء التنفيذ!';
+            console.error(err);
+        });
+    };
+
+    document.body.appendChild(div);
+    return div;
+}
+
+
+
+    function createLinkPanel() {
+        const div = document.createElement('div');
+        div.className = 'dr-panel';
+        div.innerHTML = `
+            <h3>فتح الروابط</h3>
+            <textarea id="linksArea" rows="5" placeholder="ألصق الروابط هنا..." style="resize: none;"></textarea>
+            <button id="launchLinks">🚀 فتح</button>
+            <div class="close-btn" onclick="this.parentElement.style.display='none'">✖️</div>
+<div style="text-align:center;color:white;font-size:14px;margin-top:10px;">👑 بواسطة د.أحمد خالد</div>
+        `;
+        div.querySelector('#launchLinks').onclick = () => {
+            const text = div.querySelector('#linksArea').value;
+            const links = [...text.matchAll(/https?:\/\/[^\s<>"]+/g)].map(m => m[0]);
+            if (!links.length) return alert("⚠️ لا توجد روابط!");
+            links.forEach((l, i) => setTimeout(() => window.open(l, "_blank"), i * 300));
+        };
+        document.body.appendChild(div);
+        return div;
+    }
+
+     function createJuicerPanel() {
+    const div = document.createElement('div');
+    div.className = 'dr-panel';
+    div.innerHTML = `
+        <div style="font-weight: bold; font-size: 18px; text-align: center; color: white;">🥤 آلة العصير </div>
+        <div style="text-align: center; margin-top: 12px;">
+            <label for="juicerRepeats">عدد التكرار: </label>
+            <input id="juicerRepeats" type="number" min="1" value="1" style="width: 60px;">
+        </div>
+        <button id="runJuicer" style="display: block; margin: 20px auto; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            🚀 ابدأ العملية
+        </button>
+            <div class="close-btn" onclick="this.parentElement.style.display='none'">✖️</div>
+<div style="text-align:center;color:white;font-size:14px;margin-top:10px;">👑 بواسطة د.أحمد خالد</div>
+        <div id="juicerMsg" style="text-align: center; color: green; display: none;">✅ تم الانتهاء!</div>
+    `;
+    div.querySelector('#runJuicer').onclick = async () => {
+        const repeats = +div.querySelector('#juicerRepeats').value;
+        if (!repeats) return alert("⚠️ يجب تحديد عدد التكرار!");
+        let unique_id = Date.now();  // لتوليد unique_id بشكل ديناميكي
+        div.querySelector('#juicerMsg').textContent = '⏳ جاري التنفيذ...';
+        div.querySelector('#juicerMsg').style.display = 'block';
+        try {
+            for (let i = 1; i <= repeats; i++) {
+                // إضافة عنصر العصير
+                await unsafeWindow.NetUtils.request('add_object.save_data', {
+                    unique_id, id: 0x30F11, x: 0, y: 0, flip: 0, is_storage: false, is_gift: false, is_circle: false, daily_limit: false
+                });
+
+                // تنفيذ 5 مرات: use_gift.save_data الأول
+                for (let j = 1; j <= 5; j++) {
+                    await unsafeWindow.NetUtils.request('use_gift.save_data', {
+                        id: 0x2584, target_id: 0x30F11, target_x: 0, target_y: 0
+                    });
+                }
+
+                // تنفيذ 5 مرات: use_gift.save_data الثاني
+                for (let j = 1; j <= 5; j++) {
+                    await unsafeWindow.NetUtils.request('use_gift.save_data', {
+                        id: 0x2585, target_id: 0x30F11, target_x: 0, target_y: 0
+                    });
+                }
+
+                // إزالة العصير بعد تنفيذ العملية
+                await unsafeWindow.NetUtils.request('remove_object.save_data', {
+                    id: 0x30F11, x: 0, y: 0, flip: 0
+                });
+
+                unique_id++;  // تحديث unique_id لعملية جديدة
+            }
+
+            div.querySelector('#juicerMsg').textContent = '✅ تم التنفيذ!';
+        } catch (error) {
+            console.error('Error occurred during juicer operation:', error);
+            div.querySelector('#juicerMsg').textContent = '⚠️ حدث خطأ أثناء التنفيذ.';
+            div.querySelector('#juicerMsg').style.color = 'red';
+        }
+    };
+    document.body.appendChild(div);
+    return div;
+}
+
+function createPurpleBirdPanel() {
+    const div = document.createElement('div');
+    div.className = 'dr-panel';
+    div.innerHTML = `
+        <div style="font-weight: bold; font-size: 18px; text-align: center; color: white;">🦜 طائر أرجواني</div>
+        <div style="text-align: center; margin-top: 12px;">
+            <label for="birdRepeats">عدد التكرار: </label>
+            <input id="birdRepeats" type="number" min="1" value="1" style="width: 60px;">
+        </div>
+        <button id="runBird" style="display: block; margin: 20px auto; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            🚀 ابدأ العملية
+        </button>
+        <div class="close-btn" onclick="this.parentElement.style.display='none'">✖️</div>
+        <div style="text-align:center;color:white;font-size:14px;margin-top:10px;">👑 بواسطة د.أحمد خالد</div>
+        <div id="birdMsg" style="text-align: center; color: green; display: none;">✅ تم الانتهاء!</div>
+    `;
+
+    div.querySelector('#runBird').onclick = async () => {
+        const repeats = +div.querySelector('#birdRepeats').value;
+        if (!repeats) return alert("⚠️ يجب تحديد عدد التكرار!");
+        let unique_id = Date.now();  // لتوليد unique_id بشكل ديناميكي
+        div.querySelector('#birdMsg').textContent = '⏳ جاري التنفيذ...';
+        div.querySelector('#birdMsg').style.display = 'block';
+
+        try {
+            for (let i = 1; i <= repeats; i++) {
+                console.log(`تنفيذ العملية رقم ${i}`);
+
+                // إضافة طائر أرجواني
+                const addResponse = await unsafeWindow.NetUtils.request('add_object.save_data', {
+                    unique_id, id: 0x30FA3, x: 0, y: 0, flip: 0, is_storage: false, is_gift: false, is_circle: false, daily_limit: false
+                });
+                console.log("إضافة الطائر الأرجواني: ", addResponse);
+
+                 for (let j = 1; j <= 5; j++) {
+                    await unsafeWindow.NetUtils.request('use_gift.save_data', {
+                        id: 0x30FA2, target_id: 0x30FA3, target_x: 0, target_y: 0
+                    });
+                }
+
+                // إزالة طائر أرجواني بعد العملية
+                const removeResponse = await unsafeWindow.NetUtils.request('remove_object.save_data', {
+                    id: 0x30FA3, x: 0, y: 0, flip: 0
+                });
+                console.log("إزالة الطائر الأرجواني: ", removeResponse);
+
+                unique_id++;  // تحديث unique_id لعملية جديدة
+            }
+
+            div.querySelector('#birdMsg').textContent = '✅ تم التنفيذ!';
+        } catch (error) {
+            console.error('حدث خطأ أثناء تنفيذ العملية:', error);
+            div.querySelector('#birdMsg').textContent = '⚠️ حدث خطأ أثناء التنفيذ.';
+            div.querySelector('#birdMsg').style.color = 'red';
+        }
+    };
+
+    document.body.appendChild(div);
+    return div;
+}
+
+function createCreamPanel() {
+    const div = document.createElement('div');
+    div.className = 'dr-panel';
+    div.innerHTML = `
+        <div style="font-weight: bold; font-size: 18px; text-align: center; color: white;">🍦 آلة الكريمة الطازجة </div>
+        <div style="text-align: center; margin-top: 12px;">
+            <label for="creamRepeats">عدد التكرار: </label>
+            <input id="creamRepeats" type="number" min="1" value="1" style="width: 60px;">
+        </div>
+        <button id="runCream" style="display: block; margin: 20px auto; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            🚀 ابدأ العملية
+        </button>
+        <div class="close-btn" onclick="this.parentElement.style.display='none'">✖️</div>
+        <div style="text-align:center;color:white;font-size:14px;margin-top:10px;">👑 بواسطة د.أحمد خالد</div>
+        <div id="creamMsg" style="text-align: center; color: green; display: none;">✅ تم الانتهاء!</div>
+    `;
+    div.querySelector('#runCream').onclick = async () => {
+        const repeats = +div.querySelector('#creamRepeats').value;
+        if (!repeats) return alert("⚠️ يجب تحديد عدد التكرار!");
+        let unique_id = Date.now();
+        div.querySelector('#creamMsg').textContent = '⏳ جاري التنفيذ...';
+        div.querySelector('#creamMsg').style.display = 'block';
+
+        try {
+            for (let i = 1; i <= repeats; i++) {
+                // 1️⃣ إضافة الآلة
+                await unsafeWindow.NetUtils.request('add_object.save_data', {
+                    unique_id,
+                    id: 0x33E51, // تأكد من ID آلة الكريمة الفعلي إذا كان مختلف
+                    x: 0,
+                    y: 0,
+                    flip: 0,
+                    is_storage: false,
+                    is_gift: false,
+                    is_circle: false,
+                    daily_limit: false
+                });
+
+                // 2️⃣ تنفيذ العملية الأولى
+                await unsafeWindow.NetUtils.request('finish_invite_object.save_data', {
+                    id: 0x33E51,
+                    x: 0,
+                    y: 0,
+                    flipped: 0,
+                    needResponse: "finish_invite_object.save_data",
+                    cur_sceneid: 1
+                });
+
+                // 3️⃣ تنفيذ العملية الثانية
+                await unsafeWindow.NetUtils.request('finish_spend_rp_object.save_data', {
+                    target_id: 0x33E51,
+                    target_x: 0,
+                    target_y: 0,
+                    target_scene: 1,
+                    type: "materials",
+                    needResponse: "finish_spend_rp_object.save_data",
+                    cur_sceneid: 1
+                });
+
+                // 4️⃣ حذف الآلة
+                await unsafeWindow.NetUtils.request('remove_object.save_data', {
+                    id: 0x33E51,
+                    x: 0,
+                    y: 0,
+                    flip: 0
+                });
+
+                unique_id++; // تغيير unique_id لكل تكرار
+            }
+
+            div.querySelector('#creamMsg').textContent = '✅ تم التنفيذ!';
+        } catch (error) {
+            console.error('Error during cream operation:', error);
+            div.querySelector('#creamMsg').textContent = '⚠️ حدث خطأ أثناء التنفيذ.';
+            div.querySelector('#creamMsg').style.color = 'red';
+        }
+    };
+
+    document.body.appendChild(div);
+    return div;
+}
+
+function createTokenPanel() {
+    const div = document.createElement('div');
+    div.className = 'dr-panel';
+    div.innerHTML = `
+        <h3>🎯 مشاركة الروابط (المهمات)</h3>
+        <select id="missionSelect" style="margin-bottom:10px;">
+            <option value="ColorSphere">كرة سحر الألوان </option>
+            <option value="PinballGame">مهمة بلينكو </option>
+            <option value="MysteryShopKeeper">مهمة التاجر</option>
+        </select>
+        <textarea id="ssidInput" placeholder="ssid1        ولوحبيت تكتب اسم جمبه(اختياري)
+ssid2        ولوحبيت تكتب اسم جمبه(اختياري)
+ssid3        ولوحبيت تكتب اسم جمبه(اختياري)"
+            style="width: 100%; height: 100px; margin-top: 8px; resize: vertical;"></textarea>
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+            <button id="sendBtn">📤 إرسال</button>
+            <button id="receiveBtn">📥 استقبال</button>
+        </div>
+        <div id="loadingSpinner" style="display:none;margin-top:10px;color:white;">🔄 جاري المعالجة...</div>
+        <div style="text-align:center;color:white;font-size:14px;margin-top:10px;">👑 بواسطة د.أحمد خالد</div>
+        <div class="close-btn" onclick="this.parentElement.style.display='none'">✖️</div>
+    `;
+    document.body.appendChild(div);
+
+    const ssidList = [];
+
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    async function handleAction(actionType) {
+        const input = div.querySelector('#ssidInput').value.trim();
+        const activity = div.querySelector('#missionSelect').value;
+        const spinner = div.querySelector('#loadingSpinner');
+
+        if (!input || !activity) {
+            return alert("من فضلك أدخل SSID واختر اسم المهمة");
+        }
+
+        // استخراج الأرقام فقط من النص المدخل
+        const ssids = input.split('\n')
+            .map(line => line.trim().match(/\d+/))  // استخدام تعبير منتظم لاستخراج الأرقام فقط
+            .filter(Boolean)  // تصفية القيم الفارغة
+            .map(match => match[0]);  // أخذ الأرقام فقط
+
+        if (ssids.length === 0) {
+            return alert("من فضلك أدخل SSID صحيح في كل سطر");
+        }
+
+        // إضافة الـ SSID إلى القائمة
+        ssids.forEach(ssid => {
+            if (!ssidList.includes(ssid)) {
+                ssidList.push(ssid);
+            }
+        });
+
+        spinner.style.display = 'block';
+
+        for (const ssid of ssids) {
+            try {
+                await unsafeWindow.NetUtils.request('Activity/SharingToken', {
+                    action: actionType,
+                    activity,
+                    [`${actionType === 'send' ? 'to' : 'from'}Snsids`]: [ssid],
+                    needResponse: actionType === 'send' ? 'Activity/SharingToken' : 'Activity/SharingToken3',
+                    ...(actionType === 'accept' ? { opTime: 1011.327 } : { cur_sceneid: 2 })
+                });
+                await sleep(0);
+            } catch (e) {
+                console.error(`${actionType === 'send' ? 'فشل الإرسال' : 'فشل الاستقبال'} لـ ${ssid}:`, e);
+            }
+        }
+
+        spinner.style.display = 'none';
+        alert(`✅ تم ${actionType === 'send' ? 'إرسال' : 'استقبال'} التوكينات لمهمة (${activity}) بنجاح!\nمع تحياتي\nAhmed Khaled`);
+    }
+
+    div.querySelector('#sendBtn').onclick = () => handleAction('send');
+    div.querySelector('#receiveBtn').onclick = () => handleAction('accept');
+
+    return div;
+}
+
+
+})();
