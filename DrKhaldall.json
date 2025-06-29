@@ -7,6 +7,7 @@
 // @grant        unsafeWindow
 // @updateURL    https://raw.githubusercontent.com/ak2132003/DrKLDscript/main/DrKLDscript.user.js
 // @downloadURL  https://raw.githubusercontent.com/ak2132003/DrKLDscript/main/DrKLDscript.user.js
+// @grant        GM_setClipboard
 // @match        *.centurygames.com/*
 // @grant        GM_xmlhttpRequest
 // @connect      raw.githubusercontent.com
